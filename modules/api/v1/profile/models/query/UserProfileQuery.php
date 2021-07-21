@@ -13,4 +13,9 @@ class UserProfileQuery extends \yii\db\ActiveQuery
     {
         return $this->andWhere(['user_id' => $userId]);
     }
-} 
+
+    public function byPhone($phone): UserProfileQuery
+    {
+        return $this->andWhere(['phone' => $phone]);
+    }
+}
