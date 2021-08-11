@@ -29,6 +29,9 @@ class HelloController extends Controller
     {
         echo $message . "\n";
 
+        $t = 1;
+
+
         return ExitCode::OK;
     }
 }
