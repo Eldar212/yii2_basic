@@ -1,6 +1,4 @@
 <?php
-
-
 namespace app\modules\api\v1\user\services;
 
 use app\exceptions\BadRequestException;
@@ -9,6 +7,7 @@ use app\modules\api\v1\user\forms\UserCreateForm;
 use app\modules\api\v1\user\models\User;
 use Throwable;
 use Yii;
+use yii\data\ActiveDataProvider;
 use yii\db\Exception;
 
 class UserService
@@ -27,12 +26,13 @@ class UserService
 
     /**
      * @param array $request
-     * @return array
+     * @return User
      * @throws BadRequestException
-     * @throws Throwable
      * @throws Exception
+     * @throws Throwable
+     * @throws \yii\base\Exception
      */
-    public function create(array $request): array
+    public function create(array $request): User
     {
         $form = new UserCreateForm($request);
 
@@ -52,14 +52,11 @@ class UserService
                 throw new BadRequestException($user->getErrors(), 'Не удалось создать пользователя');
             }
 
-            $userProfile = $this->userProfileService->create($user->id, $form);
+            $this->userProfileService->create($user->id, $form);
 
             $transaction->commit();
 
-            return [
-                'user' => $user,
-                'user_profile' => $userProfile
-            ];
+            return $user;
         } catch (Throwable $e) {
             $transaction->rollBack();
 
@@ -67,11 +64,69 @@ class UserService
         }
     }
 
-    public function update($request)
+    /**
+     * @param User $user
+     * @param array $request
+     * @return User
+     * @throws BadRequestException
+     */
+    public function update(User $user, array $request): User
     {
-        return [
-            'action' => 'update',
-            'request' => $request
-        ];
+        $user->userProfile->setAttributes($request);
+
+        if (!$user->userProfile->validate()) {
+            throw new BadRequestException($user->userProfile->getErrors(), 'Не удалось обновить пользователя');
+        }
+
+        if (!$user->userProfile->save()) {
+            throw new BadRequestException($user->userProfile->getErrors(), 'Не удалось обновить пользователя');
+        }
+
+        $user->userProfile->refresh();
+
+        return $user;
+    }
+
+    /**
+     * @param int $id
+     * @return User
+     * @throws BadRequestException
+     */
+    public function getById(int $id): User
+    {
+        $user = User::find()->byId($id)->one();
+
+        if (is_null($user)) {
+            throw new BadRequestException([], 'Не удалось найти пользователя');
+        }
+
+        return $user;
+    }
+
+    /**
+     * @return User[]
+     */
+    public function getList(): array
+    {
+        $activeDataProvider = new ActiveDataProvider([
+            'query' => User::find()->byActive(),
+            'pagination' => [
+                'pageSize' => 5
+            ],
+            'sort' => [
+                'attributes' => [
+                    'arsen' => [
+                        'asc' => ['id' => SORT_ASC],
+                        'desc' => ['id' => SORT_DESC]
+                    ]
+                ],
+                'defaultOrder' => [
+                    'id' => SORT_DESC
+                ],
+                'enableMultiSort' => true
+            ]
+        ]);
+
+        return $activeDataProvider->getModels();
     }
 }

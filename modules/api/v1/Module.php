@@ -35,12 +35,24 @@ class Module extends CoreModule
     public function getChildModules(): array
     {
         return [
+            /** @see \app\modules\api\v1\auth\Module */
+            'auth' => [
+                'class' => 'app\modules\api\v1\auth\Module',
+            ],
+
             /** @see \app\modules\api\v1\user\Module */
             'user' => [
                 'class' => 'app\modules\api\v1\user\Module',
             ],
+
+            /** @see \app\modules\api\v1\profile\Module */
             'profile' => [
                 'class' => 'app\modules\api\v1\profile\Module',
+            ],
+
+            /** @see \app\modules\api\v1\book\Module */
+            'book' => [
+                'class' => 'app\modules\api\v1\book\Module',
             ],
         ];
     }

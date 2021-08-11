@@ -2,12 +2,15 @@
 
 namespace app\modules\api\v1\user\controllers;
 
+use app\modules\api\v1\auth\base\BearerAuthController;
 use app\modules\api\v1\user\services\UserService;
+use \app\modules\api\v1\user\models\User;
+use \app\exceptions\BadRequestException;
 use Yii;
-use yii\web\Controller;
 
-class DefaultController extends Controller
+class DefaultController extends BearerAuthController
 {
+
     /**
      * @var UserService
      */
@@ -28,34 +31,37 @@ class DefaultController extends Controller
     }
 
     /**
-     * @return array
+     * @throws BadRequestException
      */
-    public function actionCreate(): array
+    public function actionUpdate(): User
     {
+        $user = Yii::$app->user->identity;
         $request = Yii::$app->request->bodyParams;
 
-        return $this->userService->create($request);
+        return $this->userService->update($user, $request);
     }
 
-    public function actionUpdate(): array
+    /**
+     * @throws BadRequestException
+     */
+    public function actionDelete(int $id): bool
     {
-        $request = Yii::$app->request->bodyParams;
-
-        return $this->userService->update($request);
+        return $this->userService->delete($id);
     }
 
-    public function actionDelete(): array
+    /**
+     * @throws BadRequestException
+     */
+    public function actionGetById(int $id): User
     {
-        return ['delete'];
+        return $this->userService->getById($id);
     }
 
-    public function actionGetById(): array
-    {
-        return ['get-by-id'];
-    }
-
+    /**
+     * @return User[]
+     */
     public function actionList(): array
     {
-        return ['list'];
+        return $this->userService->getList();
     }
 }

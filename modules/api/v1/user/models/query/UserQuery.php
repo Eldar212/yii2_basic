@@ -3,7 +3,6 @@
 
 namespace app\modules\api\v1\user\models\query;
 
-use app\modules\api\v1\user\forms\UserCreateForm;
 use app\modules\api\v1\user\models\User;
 use yii\db\ActiveQuery;
 
@@ -17,6 +16,11 @@ class UserQuery extends ActiveQuery
     public function byActive()
     {
         return $this->andWhere(['status' => User::STATUS_ACTIVE]);
+    }
+
+    public function byId($id): UserQuery
+    {
+        return $this->andWhere(['id' => $id]);
     }
 
     public function byEmail($email): UserQuery

@@ -8,6 +8,9 @@ use app\modules\api\v1\user\models\query\UserQuery;
 use app\modules\api\v1\user\models\User;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use yii\behaviors\TimestampBehavior;
+use yii\helpers\ArrayHelper;
+
 
 /**
  * This is the model class for table "user_profile".
@@ -28,9 +31,28 @@ class UserProfile extends ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'user_profile';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function behaviors(): array
+    {
+        return ArrayHelper::merge(parent::behaviors(), [
+            TimestampBehavior::class
+        ]);
+    }
+
+    public function fields(): array
+    {
+        return [
+            'name',
+            'middle_name',
+            'last_name'
+        ];
     }
 
     /**

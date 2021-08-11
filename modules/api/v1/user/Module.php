@@ -21,7 +21,6 @@ class Module extends CoreModule
         Yii::setAlias('@apiV1_module_user', '@app/modules/api/v1/user');
 
         $app->getUrlManager()->addRules([
-            'POST v1/user' => 'v1/user/default/create',
             'PUT v1/user' => 'v1/user/default/update',
             'DELETE v1/user/<id:\d+>' => 'v1/user/default/delete',
             'GET v1/user/<id:\d+>' => 'v1/user/default/get-by-id',
