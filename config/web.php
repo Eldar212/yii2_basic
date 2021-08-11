@@ -31,8 +31,7 @@
                 ],
             ],
             'user' => [
-                'identityClass' => 'app\models\User',
-                'enableAutoLogin' => true,
+                'identityClass' => 'app\modules\api\v1\user\models\User',
             ],
             'errorHandler' => [
                 'class' => ErrorHandler::class,

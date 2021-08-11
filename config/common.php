@@ -16,9 +16,11 @@ $common = [
     'bootstrap' => [
         'log',
         'v1',
+        'swagger'
     ],
     'modules' => [
         'v1' => ['class' => 'app\modules\api\v1\Module'],
+        'swagger' => ['class' => 'app\modules\swagger\Module'],
     ],
     'aliases' => [
         '@bower' => '@vendor/bower-asset',

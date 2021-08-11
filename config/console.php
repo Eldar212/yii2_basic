@@ -10,7 +10,8 @@
                 'migrationPath' => [
                     '@apiV1_module_user/migrations',
                     '@apiV1_module_profile/migrations',
-//                    '@module_core/migrations',
+                    '@apiV1_module_auth/migrations',
+                    '@apiV1_module_book/migrations',
                 ],
             ],
         ],
