@@ -6,7 +6,6 @@ namespace app\modules\api\v1\profile;
 
 use app\modules\core\modules\CoreModule;
 use Yii;
-use yii\base\Application;
 
 class Module extends CoreModule
 {

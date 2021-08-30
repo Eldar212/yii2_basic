@@ -39,6 +39,12 @@ class Module extends CoreModule
              */
             'POST v1/author/add' => 'v1/book/author/create',
 
+            /**
+             * Прикрепление книги к автору
+             * @see AuthorController::actionPinBook()
+             */
+            'POST v1/author/pin-book' => 'v1/book/author/pin-book',
+
             'GET v1/book/<id:\d+>' => 'v1/book/default/get-by-id',
 
 

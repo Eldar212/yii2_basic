@@ -101,7 +101,7 @@ class UserProfile extends ActiveRecord
      * {@inheritdoc}
      * @return UserProfileQuery the active query used by this AR class.
      */
-    public static function find()
+    public static function find(): UserProfileQuery
     {
         return new UserProfileQuery(get_called_class());
     }

@@ -21,7 +21,6 @@ class AuthorAddForm extends Model
      * @var string
      */
     public $last_name;
-
     /**
      * @var array
      */

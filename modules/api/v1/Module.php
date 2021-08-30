@@ -54,6 +54,11 @@ class Module extends CoreModule
             'book' => [
                 'class' => 'app\modules\api\v1\book\Module',
             ],
+
+            /** @see \app\modules\api\v1\favorite\Module */
+            'favorite' => [
+                'class' => 'app\modules\api\v1\favorite\Module',
+            ],
         ];
     }
 }

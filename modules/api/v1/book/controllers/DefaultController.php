@@ -30,9 +30,9 @@ class DefaultController extends BearerAuthController
      * @throws Throwable
      * @throws BadRequestException
      */
-    public function actionCreate(): Book
+    public function actionCreate()
     {
-        $request = RequestHelper::getBodyParam();
+        $request = RequestHelper::getPostParams();
         $user = AccessManager::getUser();
 
         return $this->bookService->create($user, $request);
@@ -45,8 +45,8 @@ class DefaultController extends BearerAuthController
      */
     public function actionUpdate(int $id)
     {
+        $request = RequestHelper::getPostParams();
         $user = AccessManager::getUser();
-        $request = RequestHelper::getBodyParam();
 
         return $this->bookService->update($user, $id, $request);
     }

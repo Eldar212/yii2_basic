@@ -27,14 +27,14 @@ class AuthorController extends BearerAuthController
 
     public function actionCreate(): BookAuthor
     {
-        $request = RequestHelper::getBodyParam();
+        $request = RequestHelper::getBodyParams();
 
         return $this->authorService->create($request);
     }
 
     public function actionUpdate($id)
     {
-        $request = RequestHelper::getBodyParam();
+        $request = RequestHelper::getBodyParams();
 
         return $this->authorService->update($id, $request);
     }
@@ -46,14 +46,14 @@ class AuthorController extends BearerAuthController
      */
     public function actionDelete($id): string
     {
-        $request = RequestHelper::getBodyParam();
+        $request = RequestHelper::getBodyParams();
 
         return $this->authorService->delete($id);
     }
 
     public function actionPinBook()
     {
-        $request = RequestHelper::getBodyParam();
+        $request = RequestHelper::getBodyParams();
         return $this->authorService->pinBook($request);
     }
 }

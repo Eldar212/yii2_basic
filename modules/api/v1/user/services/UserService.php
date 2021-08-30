@@ -48,6 +48,7 @@ class UserService
                 'password_reset_token' => Yii::$app->security->generateRandomString(),
                 'status' => User::STATUS_ACTIVE
             ]);
+
             if (!$user->validate() || !$user->save()) {
                 throw new BadRequestException($user->getErrors(), 'Не удалось создать пользователя');
             }

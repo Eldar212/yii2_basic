@@ -78,7 +78,7 @@ class RelationBookAuthor extends ActiveRecord
      * {@inheritdoc}
      * @return RelationBookAuthorQuery the active query used by this AR class.
      */
-    public static function find()
+    public static function find(): RelationBookAuthorQuery
     {
         return new RelationBookAuthorQuery(get_called_class());
     }

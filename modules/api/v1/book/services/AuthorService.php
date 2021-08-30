@@ -3,10 +3,11 @@
 namespace app\modules\api\v1\book\services;
 
 use app\exceptions\BadRequestException;
+use app\modules\api\v1\book\forms\AttachEntityForm;
 use app\modules\api\v1\book\forms\AuthorAddForm;
 use app\modules\api\v1\book\models\BookAuthor;
 use app\modules\api\v1\book\models\RelationBookAuthor;
-use app\modules\api\v1\user\models\User;
+use phpDocumentor\Reflection\Types\Boolean;
 use Throwable;
 use Yii;
 use yii\db\Exception;
@@ -27,7 +28,7 @@ class AuthorService
             throw new BadRequestException($form->getErrors(), 'Форма заполнена неверно');
         }
 
-            $transaction = Yii::$app->db->beginTransaction();
+        $transaction = Yii::$app->db->beginTransaction();
 
         try {
             $author = new BookAuthor([
@@ -88,7 +89,7 @@ class AuthorService
      * @throws StaleObjectException
      * @throws BadRequestException
      */
-    public function delete($id): string
+    public function delete($id): bool
     {
         $author = BookAuthor::find()->where(['id' => $id])->one();
 
@@ -98,11 +99,47 @@ class AuthorService
 
         $author->delete();
 
-        return "Товар с ib - {$id} успешно удален.";
+        return true;
     }
 
+    /**
+     * @throws BadRequestException
+     */
     public function pinBook($request)
     {
-        return 'book';
+        $form = new AttachEntityForm($request);
+
+        if (!$form->validate()) {
+            throw new BadRequestException([], 'Валидация не пройдена');
+        }
+
+        $isExistRelation = RelationBookAuthor::find()
+            ->where(['author_id' => $form->author_id, 'book_id' => $form->book_id])
+            ->exists();
+
+        if ($isExistRelation) {
+            throw new BadRequestException([], 'Данная свящь уже существует');
+        }
+
+        $transaction = Yii::$app->db->beginTransaction();
+
+        try {
+            $relation = new RelationBookAuthor([
+                'book_id' => $form->book_id,
+                'author_id' => $form->author_id
+            ]);
+
+            if (!$relation->validate() || !$relation->save()) {
+                throw new BadRequestException($relation->getErrors(), 'Не удалось прикрепить книгу');
+            }
+
+            $transaction->commit();
+
+            return $relation;
+
+        } catch (Throwable $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
     }
 }

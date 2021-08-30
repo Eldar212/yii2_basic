@@ -1,17 +1,19 @@
 <?php
 
-
 namespace app\modules\api\v1\book\services;
 
-
 use app\exceptions\BadRequestException;
-use app\modules\api\v1\book\forms\BookCreateForm;
+use app\modules\api\v1\book\forms\BookForm;
 use app\modules\api\v1\book\models\Book;
+use app\modules\api\v1\book\models\BookPicture;
 use app\modules\api\v1\book\models\RelationBookAuthor;
 use app\modules\api\v1\user\models\User;
+use app\modules\core\helpers\FileHelper;
 use Throwable;
 use Yii;
 use yii\db\StaleObjectException;
+use yii\helpers\ArrayHelper;
+use yii\web\UploadedFile;
 
 class BookService
 {
@@ -21,7 +23,10 @@ class BookService
      */
     public function create(User $user, array $request): Book
     {
-        $form = new BookCreateForm($request);
+        $form = new BookForm($request);
+        $form->setScenario(BookForm::SCENARIO_CREATE);
+        $form->preview = UploadedFile::getInstanceByName('preview');
+        $form->pictures = UploadedFile::getInstancesByName('pictures');
 
         if (!$form->validate()) {
             throw new BadRequestException($form->getErrors(), 'Форма заполнена неверно');
@@ -51,6 +56,20 @@ class BookService
                 }
             }
 
+            $pictures = $form->getBookPictures();
+
+            foreach ($pictures as $picture) {
+                $bookPicture = new BookPicture([
+                    'book_id' => $book->id,
+                    'path' => $picture['img'],
+                    'is_main' => $picture['is_main'],
+                ]);
+
+                if (!$bookPicture->validate() || !$bookPicture->save()) {
+                    throw new BadRequestException($bookPicture->getErrors(), 'Не удалось загрузить изображение.');
+                }
+            }
+
             $transaction->commit();
 
             return $book;
@@ -61,20 +80,103 @@ class BookService
         }
     }
 
-    public function update(User $user, int $id, array $request)
+    /**
+     * @throws Throwable
+     * @throws BadRequestException
+     * @throws StaleObjectException
+     */
+    public function update(int $id, array $request)
     {
         $book = Book::find()->where(['id' => $id])->one();
 
-        $book->setAttributes($request);
-
-        if (!$book->save())
-        {
-            throw new BadRequestException($book->getErrors(), 'Не удалось обновить информацию о книге');
+        if (is_null($book)) {
+            throw new BadRequestException([], 'Книга не найдена');
         }
 
-        $book->refresh();
+        $form = new BookForm($request);
+        $form->preview = UploadedFile::getInstanceByName('preview');
+        $form->pictures = UploadedFile::getInstancesByName('pictures');
 
-        return $book;
+        if (!$form->validate()) {
+            throw new BadRequestException($form->getErrors(), 'Форма заполнена неверно');
+        }
+
+        $pictures = $form->getBookPictures();
+
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            foreach ($pictures as $picture) {
+                if ($picture['is_main'] && !is_null($picture['img'])) {
+                    $bookPicture = BookPicture::find()
+                        ->where([
+                            'book_id' => $book->id,
+                            'is_main' => BookPicture::IS_MAIN
+                        ])
+                        ->one();
+
+                    if (!is_null($bookPicture)) {
+                        $bookPicture->delete();
+                    }
+
+                    $bookPicture = new BookPicture([
+                        'book_id' => $book->id,
+                        'path' => $picture['img'],
+                        'is_main' => $picture['is_main'],
+                    ]);
+
+                    if (!$bookPicture->validate() || !$bookPicture->save()) {
+                        throw new BadRequestException($bookPicture->getErrors(), 'Не удалось загрузить изображение.');
+                    }
+                }
+                if (!$picture['is_main'] && !is_null($picture['img'])) {
+                    $bookPicture = BookPicture::find()
+                        ->where([
+                            'book_id' => $book->id,
+                            'is_main' => BookPicture::IS_NOT_MAIN
+                        ])->all();
+
+                    if (!is_null($bookPicture)) {
+                        foreach ($bookPicture as $oldPicture)
+                            $oldPicture->delete();
+                    }
+                }
+            }
+
+            foreach ($pictures as $picture) {
+                if (!$picture['is_main'] && !is_null($picture['img'])) {
+                    $bookPicture = new BookPicture([
+                        'book_id' => $book->id,
+                        'path' => $picture['img'],
+                        'is_main' => $picture['is_main'],
+                    ]);
+
+                    if (!$bookPicture->validate() || !$bookPicture->save()) {
+                        throw new BadRequestException($bookPicture->getErrors(), 'Не удалось загрузить изображение.');
+                    }
+                }
+            }
+
+            $request = [
+                'name' => $request['name'] ?? $book->name,
+                'price' => $request['price'] ?? $book->price,
+                'description' => $request['description'] ?? $book->description
+            ];
+            $book->setAttributes($request);
+
+            if (!$book->save()) {
+                throw new BadRequestException($book->getErrors(), 'Не удалось обновить информацию о книге');
+            }
+
+            $transaction->commit();
+
+            $book->refresh();
+
+            return $book;
+
+        } catch (Throwable $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
     }
 
     /**
@@ -85,8 +187,7 @@ class BookService
     {
         $book = Book::find()->where(['id' => $id])->one();
 
-        if (is_null($book))
-        {
+        if (is_null($book)) {
             throw new BadRequestException([], 'Не удалось найти книгу');
         }
 
@@ -97,7 +198,6 @@ class BookService
 
     public function getById(int $id)
     {
-        $t =1;
         return Book::find()->where(['id' => $id])->one();
     }
 

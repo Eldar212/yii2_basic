@@ -22,6 +22,8 @@ use yii\web\IdentityInterface;
  * @property int $updated_at [bigint]  дата изменения
  *
  * @property BookAuthor[] $bookAuthors
+ * @property BookPicture $preview
+ * @property BookPicture[] $pictures
  */
 class Book extends ActiveRecord
 {
@@ -48,6 +50,14 @@ class Book extends ActiveRecord
 //            'authors' => function() {
 //                return $this->bookAuthors;
 //            },
+            'preview' => function () {
+                return $this->preview->path;
+            },
+            'pictures' => function () {
+                return array_map(function (BookPicture $picture) {
+                    return $picture->path;
+                }, $this->pictures);
+            },
             'created_at',
             'updated_at'
         ];
@@ -64,7 +74,13 @@ class Book extends ActiveRecord
             [['name'], 'string', 'max' => 255],
             [['description'], 'string'],
             [['price'], 'number'],
-            [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class,'targetAttribute' => ['user_id' => 'id']]
+            [
+                ['user_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => User::class,
+                'targetAttribute' => ['user_id' => 'id']
+            ]
         ];
     }
 
@@ -81,12 +97,12 @@ class Book extends ActiveRecord
         ];
     }
 
-    public function  getUser(): ActiveQuery
+    public function getUser(): ActiveQuery
     {
         return $this->hasOne(User::class, ['id' => 'user_id']);
     }
 
-    public function  getRelationBookAuthors(): ActiveQuery
+    public function getRelationBookAuthors(): ActiveQuery
     {
         return $this->hasMany(RelationBookAuthor::class, ['book_id' => 'id']);
     }
@@ -95,10 +111,23 @@ class Book extends ActiveRecord
      * @return ActiveQuery
      * @throws InvalidConfigException
      */
-    public function getBookAuthors()
+    public function getBookAuthors(): ActiveQuery
     {
         return $this->hasMany(BookAuthor::class, ['id' => 'author_id'])
             ->viaTable(RelationBookAuthor::tableName(), ['book_id' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getPreview(): ActiveQuery
+    {
+        return $this->hasOne(BookPicture::class, ['book_id' => 'id'])->andWhere(['is_main' => BookPicture::IS_MAIN]);
+    }
+
+    public function getPictures(): ActiveQuery
+    {
+        return $this->hasMany(BookPicture::class, ['book_id' => 'id'])->andWhere(['is_main' => BookPicture::IS_NOT_MAIN]);
     }
 
     public static function find(): BookQuery

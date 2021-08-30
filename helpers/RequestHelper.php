@@ -7,8 +7,13 @@ use Yii;
 class RequestHelper
 {
 
-    public static function getBodyParam()
+    public static function getBodyParams()
     {
         return Yii::$app->request->bodyParams;
+    }
+
+    public static function getPostParams()
+    {
+        return Yii::$app->request->post();
     }
 }

@@ -3,9 +3,8 @@
 
 namespace app\modules\api\v1\auth\base;
 
-
-use app\modules\api\v1\auth\handlers\HttpBearerAuth;
-use yii\filters\auth\CompositeAuth;
+use app\modules\api\v1\auth\filters\CompositeAuth;
+use app\modules\api\v1\auth\filters\HttpBearerAuth;
 use yii\helpers\ArrayHelper;
 use yii\web\Controller;
 

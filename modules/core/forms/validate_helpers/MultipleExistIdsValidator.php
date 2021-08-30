@@ -19,6 +19,10 @@ abstract class MultipleExistIdsValidator extends Validator
     
     public function validateAttribute($model, $attr)
     {
+        if (!is_array($model->$attr)){
+            $this->addError($model, $attr, "Неверный тип поля {$attr}");
+            return;
+        }
         $model->$attr = array_unique($model->$attr);
         $valueIds = $model->$attr;
         $findModelIds = $this->findModel::find()->select(['id'])->byId($valueIds)->column();
