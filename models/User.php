@@ -4,6 +4,7 @@ namespace app\models;
 
 use app\models\query\UserQuery;
 use Yii;
+use yii\base\Exception;
 use yii\db\ActiveRecord;
 
 /**
@@ -16,6 +17,7 @@ use yii\db\ActiveRecord;
  * @property int $status статус
  * @property int|null $created_at дата создания
  * @property int|null $updated_at дата изменения
+ * @property string $access_token [varchar(255)]  Токен доступа
  */
 class User extends ActiveRecord
 {
@@ -67,8 +69,11 @@ class User extends ActiveRecord
         return new \app\models\query\UserQuery(get_called_class());
     }
 
+    /**
+     * @throws Exception
+     */
     public static function generatePasswordHash(string $password): string
     {
-        return \Yii::$app->security->generatePasswordHash(password);
+        return \Yii::$app->security->generatePasswordHash($password);
     }
 }
