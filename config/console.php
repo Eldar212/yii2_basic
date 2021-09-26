@@ -12,7 +12,8 @@
                     '@apiV1_module_profile/migrations',
                     '@apiV1_module_auth/migrations',
                     '@apiV1_module_book/migrations',
-                    '@apiV1_module_favorite/migrations'
+                    '@apiV1_module_favorite/migrations',
+                    '@apiV1_module_comments/migrations'
                 ],
             ],
         ],

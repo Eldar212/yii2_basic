@@ -59,6 +59,11 @@ class Module extends CoreModule
             'favorite' => [
                 'class' => 'app\modules\api\v1\favorite\Module',
             ],
+
+            /** @see \app\modules\api\v1\comments\Module */
+            'comments' => [
+                'class' => 'app\modules\api\v1\comments\Module',
+            ],
         ];
     }
 }
