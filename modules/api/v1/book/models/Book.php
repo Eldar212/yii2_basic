@@ -122,12 +122,14 @@ class Book extends ActiveRecord
      */
     public function getPreview(): ActiveQuery
     {
-        return $this->hasOne(BookPicture::class, ['book_id' => 'id'])->andWhere(['is_main' => BookPicture::IS_MAIN]);
+        return $this->hasOne(BookPicture::class, ['book_id' => 'id'])
+            ->andWhere(['is_main' => BookPicture::IS_MAIN]);
     }
 
     public function getPictures(): ActiveQuery
     {
-        return $this->hasMany(BookPicture::class, ['book_id' => 'id'])->andWhere(['is_main' => BookPicture::IS_NOT_MAIN]);
+        return $this->hasMany(BookPicture::class, ['book_id' => 'id'])
+            ->andWhere(['is_main' => BookPicture::IS_NOT_MAIN]);
     }
 
     public static function find(): BookQuery
